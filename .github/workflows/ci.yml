@@ -1,4 +1,4 @@
-name: CI Pipeline
+name: CI - Build & Push Docker Images
 
 on:
   push:
@@ -7,44 +7,49 @@ on:
     branches: [ main ]
 
 jobs:
-  backend:
-    name: Backend CI
+  build-and-push:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      # ---------- NODE SETUP ----------
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
+      # ---------- BACKEND CHECK ----------
       - name: Install backend dependencies
         working-directory: backend
         run: npm install
 
-      - name: Backend build check
-        working-directory: backend
-        run: echo "Backend OK"
-
-  frontend:
-    name: Frontend CI
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 18
-
+      # ---------- FRONTEND CHECK ----------
       - name: Install frontend dependencies
         working-directory: frontend
         run: npm install
 
-      - name: Frontend build
+      - name: Build frontend
         working-directory: frontend
         run: npm run build
+
+      # ---------- DOCKER LOGIN ----------
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # ---------- DOCKER BUILDS ----------
+      - name: Build backend image
+        run: docker build -t vishruti18/task-backend:latest ./backend
+
+      - name: Push backend image
+        run: docker push vishruti18/task-backend:latest
+
+      - name: Build frontend image
+        run: docker build -t vishruti18/task-frontend:latest ./frontend
+
+      - name: Push frontend image
+        run: docker push vishruti18/task-frontend:latest
