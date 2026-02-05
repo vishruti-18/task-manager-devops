@@ -23,10 +23,15 @@ function App() {
   };
 
 
-  const deleteTask = async (id) => {
-    await axios.delete(`http://localhost:5000/tasks/${id}`);
-    loadTasks();
-  };
+ const deleteTask = async (id) => {
+  await axios.delete(`${API}/tasks/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  loadTasks();
+};
+
 
   useEffect(() => {
     loadTasks();
