@@ -1,22 +1,27 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import "./App.css";
+const API = process.env.REACT_APP_API_URL;
+
 
 function App() {
   const [tasks, setTasks] = useState([]);
   const [title, setTitle] = useState("");
 
   const loadTasks = async () => {
-    const res = await axios.get("http://localhost:5000/tasks");
+    const res = await axios.get(`${API}/tasks`);
     setTasks(res.data);
   };
 
+
   const addTask = async () => {
     if (!title) return;
-    await axios.post("http://localhost:5000/tasks", { title });
+
+    await axios.post(`${API}/tasks`, { title });
     setTitle("");
     loadTasks();
   };
+
 
   const deleteTask = async (id) => {
     await axios.delete(`http://localhost:5000/tasks/${id}`);
